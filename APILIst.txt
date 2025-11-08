@@ -1,0 +1,42 @@
+Products Controller
+
+Get Products
+Add a Products
+Get One Products
+Rate Product
+Filter Products
+
+db.products.aggregate([
+    {
+        $unwind:"$ratings"
+    },
+    {
+        $group:{
+            _id:"$name",
+            averageRating:{
+                $avg:"$ratings.rating"
+            }
+        }
+    }
+]);
+
+//Group products according to the number of ratings
+
+db.products.aggregate([
+    {
+        $project:{
+            name:1,
+            countOfRating:
+            {
+               $cond:{if:{$isArray:"$ratings"},then: { $size:"$ratings"},else:0}
+            }
+        }
+    },
+        {
+            $sort:{countOfRating:1}
+        },
+        {
+            $limit:1
+        }
+    
+]);
